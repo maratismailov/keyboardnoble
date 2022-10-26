@@ -5,6 +5,8 @@ use std::io::prelude::*;
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{Event, Element, Request, RequestInit, RequestMode, Response};
 use wasm_bindgen_futures::JsFuture;
+// use rand::Rng;
+use rand::seq::IteratorRandom;
 // use web_sys::{Document, Element};
 
 macro_rules! console_log {
@@ -26,34 +28,54 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 // Called by our JS entry point to run the example
 #[wasm_bindgen(start)]
 pub async fn main() -> Result<(), JsValue> {
-    // proper errors in console
-    // console_error_panic_hook::set_once();
+    let mut rng = rand::thread_rng();
 
-    // let board = Rc::new(RefCell::new(board::Board::new_wasm("rusty".to_string())));
-    // let mut our_board = Rc::clone(&board); // 0xff00ab11
-
-    // Use `web_sys`'s global `window` function to get a handle on the global
-    // window object.
-    // let mut contents = "ttttt";
-    // println!("contents are {}", contents);
-    
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
     let body = document.body().expect("document should have a body");
 
-    // add text input for guess
-    let input: Element = document.create_element("input")?;
-    input.set_attribute("placeholder", "guess a word")?;
+    let container = document.create_element("div")?;
+    container.set_id("container");
 
-    let text_block = document.create_element("p")?;
-    text_block.set_id("text-block");
+    // add text input for guess
+    let input: Element = document.create_element("textarea")?;
+    input.set_id("input");
+
+    let task_text = document.create_element("p")?;
+    task_text.set_id("task-text");
+
+    let full_value = document.create_element("span")?;
+    full_value.set_id("full-value");
+
+    let good_value = document.create_element("span")?;
+    good_value.set_id("good-value");
+
+    let bad_value = document.create_element("span")?;
+    bad_value.set_id("bad-value");
 
     let entered_value = document.create_element("p")?;
     entered_value.set_id("entered-value");
 
-    body.append_child(&input);
-    body.append_child(&text_block);
-    body.append_child(&entered_value);
+    let task_status = document.create_element("p")?;
+    task_status.set_id("task-status");
+
+    body.append_child(&container);
+    container.append_child(&task_text);
+    container.append_child(&input);
+    container.append_child(&entered_value);
+    container.append_child(&task_status);
+
+    task_text.append_child(&good_value);
+    task_text.append_child(&bad_value);
+    task_text.append_child(&full_value);
+
+
+    document
+    .get_element_by_id("task-status")
+    .expect("#task-status should exist")
+    .dyn_into::<web_sys::HtmlElement>()
+    .expect("#task-status should be a HtmlElement")
+    .set_inner_html("empty");
 
 
     let mut opts = RequestInit::new();
@@ -76,73 +98,137 @@ pub async fn main() -> Result<(), JsValue> {
 
     let jstext = JsFuture::from(resp.text()?).await?;
     let text = &jstext.as_string().unwrap();
-    let copy = text.clone();
-    // let text2 = text.as_str();
+    let splitted_text = text.lines();
+    let mut task_text = String::new();
+    for n in 0..15 {
+        task_text.push_str(&splitted_text.clone().choose(&mut rng).unwrap());
+        if n != 14 {
+            task_text.push_str(" ");
+        }
+    }
+    let copy_task_text = task_text.clone();
 
-    // console_log!("{}", text);
-
-
-
-
-    // let container = Rc::new(RefCell::new(document.create_element("div").unwrap()));
-    // let dom_board = our_board.borrow().to_dom(&document)?;
-    // container.borrow_mut().append_child(&dom_board)?;
-
-    // let board_ref = Rc::clone(&board);
-    // let container_ref = Rc::clone(&container);
     let cb = Closure::wrap(Box::new(move |e: Event| {
         let input = e
             .current_target()
             .unwrap()
-            .dyn_into::<web_sys::HtmlInputElement>()
+            .dyn_into::<web_sys::HtmlTextAreaElement>()
             .unwrap();
         let text_value = &input.value();
-        // cons(&text_value);
-        change_text_block(&copy, &text_value);
+        process_text(&text_value, &copy_task_text);
     }) as Box<dyn FnMut(_)>);
     input.add_event_listener_with_callback("input", &cb.as_ref().unchecked_ref())?;
     cb.forget();
 
-    // body.append_child(&contai
 
     document
-    .get_element_by_id("text-block")
-    .expect("#text-block should exist")
+    .get_element_by_id("full-value")
+    .expect("#full-value should exist")
     .dyn_into::<web_sys::HtmlElement>()
-    .expect("#text-block should be a HtmlElement")
-    .set_inner_html(&text);
+    .expect("#full-value should be a HtmlElement")
+    .set_inner_html(&task_text);
 
     Ok(())
 }
 
+fn process_text(entered_text: &str, task_text: &str) {
+    let entered_text_len = entered_text.chars().count();
+    let task_text_len = task_text.chars().count();
+    let task_to_check_string: String = task_text.chars().skip(0).take(entered_text_len).collect::<String>();
+    let task_to_check = task_to_check_string.as_str();
+    // let mut entered_correct = "";
+    // let mut remaining_full = "";
+    // let remaining_full_string: String;
+    // let mut entered_wrong = "";
+    // let mut entered_correct_len = 0;
+    // let mut entered_wrong_len = 0;
+    // let mut entered_wrong_string: String;
 
-// #[wasm_bindgen]
-// pub fn add(a: u32, b: u32) -> u32 {
-//     a + b
-// }
-
-// fn cons(text: &str) {
-//     console_log!("this is text: {}", &text);
-// }
-
-fn change_text_block(value: &str, text: &str) {
-    console_log!("test");
     let window = web_sys::window().expect("no global `window` exists");
-    // let document = web_sys::window().unwrap().document().unwrap();
     let document = window.document().expect("should have a document on window");
-    document
-    .get_element_by_id("text-block")
-    .expect("#text-block should exist")
-    .dyn_into::<web_sys::HtmlElement>()
-    .expect("#text-block should be a HtmlElement")
-    .set_inner_html(&value);
 
-    document
-    .get_element_by_id("entered-value")
-    .expect("#text-block should exist")
-    .dyn_into::<web_sys::HtmlElement>()
-    .expect("#text-block should be a HtmlElement")
-    .set_inner_html(&text);
-    // body.append_child(&text_block)?;
-    // Ok(())
+    let mut good_value: String = String::from("");
+    let mut bad_value: String = String::from("");
+    let mut remaining: String;
+    let mut good_value_len = 0;
+    let mut bad_value_len = 0;
+    // let mut remaining_string: String;
+    if entered_text == "" {
+        bad_value = String::from("");
+        good_value = String::from("");
+
+        document
+        .get_element_by_id("bad-value")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .set_inner_html(&bad_value);
+
+        document
+        .get_element_by_id("full-value")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .set_inner_html(&task_text);
+
+        document
+        .get_element_by_id("good-value")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .set_inner_html(&good_value);
+
+        document
+        .get_element_by_id("input")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .style().set_property("background-color", "white");
+    }
+
+    for (index, char) in entered_text.chars().enumerate() {
+        if char == task_text.chars().nth(index).unwrap() && entered_text == task_to_check {
+            good_value.push(char);
+            good_value_len = good_value.chars().count();
+            remaining = task_text.chars().skip(good_value_len).take(task_text_len).collect::<String>();
+            document
+            .get_element_by_id("input")
+            .expect("#task-text should exist")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("#task-text should be a HtmlElement")
+            .style().set_property("background-color", "white");
+        }
+        else {
+            bad_value.push(char);
+            bad_value_len = bad_value.chars().count();
+            remaining = task_text.chars().skip(good_value_len + bad_value_len).take(task_text_len).collect::<String>();
+            document
+            .get_element_by_id("input")
+            .expect("#task-text should exist")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("#task-text should be a HtmlElement")
+            .style().set_property("background-color", "yellow");
+        }
+
+        document
+        .get_element_by_id("good-value")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .set_inner_html(&good_value);
+
+        document
+        .get_element_by_id("bad-value")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .set_inner_html(&bad_value);
+
+        document
+        .get_element_by_id("full-value")
+        .expect("#task-text should exist")
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("#task-text should be a HtmlElement")
+        .set_inner_html(&remaining);
+    }
 }
