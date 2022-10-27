@@ -56,40 +56,85 @@ pub async fn main() -> Result<(), JsValue> {
     let entered_value = document.create_element("p")?;
     entered_value.set_id("entered-value");
 
-    let task_status = document.create_element("p")?;
-    task_status.set_id("task-status");
+    body.append_child(&container)?;
+    container.append_child(&task_text)?;
+    container.append_child(&input)?;
+    container.append_child(&entered_value)?;
+    // container.append_child(&task_status);
 
-    body.append_child(&container);
-    container.append_child(&task_text);
-    container.append_child(&input);
-    container.append_child(&entered_value);
-    container.append_child(&task_status);
+    task_text.append_child(&good_value)?;
+    task_text.append_child(&bad_value)?;
+    task_text.append_child(&full_value)?;
 
-    task_text.append_child(&good_value);
-    task_text.append_child(&bad_value);
-    task_text.append_child(&full_value);
+    set_dict("rui_top100", "words");
+ 
+
+
+ 
+
+    Ok(())
+}
+
+
+
+#[wasm_bindgen]
+pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
+    let mut pre_url = "dictionary/".to_owned();
+    // url.push(dict);
+    pre_url = format!("{}{}.txt", pre_url, dict).to_string();
+    let url = &pre_url;
+
+
+    // match dict {
+    //     "ruitop100" => { url = "dictionary/rui_top100.txt" }
+    //     "cftop100" => { url = "dictionary/contemp_fiction_top100.txt" }
+    //     _ => { url = "dictionary/rui_top100.txt" }
+    // }
+
+    console_log!("mode is {}", mode);
+    let mut rng = rand::thread_rng();
+
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let body = document.body().expect("document should have a body");
 
 
     document
-    .get_element_by_id("task-status")
-    .expect("#task-status should exist")
+    .get_element_by_id("bad-value")
+    .expect("#task-text should exist")
     .dyn_into::<web_sys::HtmlElement>()
-    .expect("#task-status should be a HtmlElement")
-    .set_inner_html("empty");
+    .expect("#task-text should be a HtmlElement")
+    .set_inner_html("");
 
+    document
+    .get_element_by_id("full-value")
+    .expect("#task-text should exist")
+    .dyn_into::<web_sys::HtmlElement>()
+    .expect("#task-text should be a HtmlElement")
+    .set_inner_html("");
+
+    document
+    .get_element_by_id("good-value")
+    .expect("#task-text should exist")
+    .dyn_into::<web_sys::HtmlElement>()
+    .expect("#task-text should be a HtmlElement")
+    .set_inner_html("");
+
+    document
+    .get_element_by_id("input")
+    .expect("#task-text should exist")
+    .dyn_into::<web_sys::HtmlElement>()
+    .expect("#task-text should be a HtmlElement")
+    .style().set_property("background-color", "white")?;
 
     let mut opts = RequestInit::new();
     opts.method("GET");
     opts.mode(RequestMode::Cors);
 
 
-    let url = "dictionary/rlnc_top100.txt";
+
 
     let request = Request::new_with_str_and_init(&url, &opts)?;
-
-    // request
-    //     .headers()
-    //     .set("Accept", "application/vnd.github.v3+json")?;
 
     let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
 
@@ -97,17 +142,27 @@ pub async fn main() -> Result<(), JsValue> {
     let resp: Response = resp_value.dyn_into().unwrap();
 
     let jstext = JsFuture::from(resp.text()?).await?;
-    let text = &jstext.as_string().unwrap();
-    let splitted_text = text.lines();
     let mut task_text = String::new();
-    for n in 0..15 {
-        task_text.push_str(&splitted_text.clone().choose(&mut rng).unwrap());
-        if n != 14 {
-            task_text.push_str(" ");
+    let text = &jstext.as_string().unwrap();
+
+    if mode == "words" {
+        let splitted_text = text.lines();
+        for n in 0..15 {
+            task_text.push_str(&splitted_text.clone().choose(&mut rng).unwrap());
+            if n != 14 {
+                task_text.push_str(" ");
+            }
         }
     }
-    let copy_task_text = task_text.clone();
+    else {
+        let splitted_text = text.lines();
 
+        task_text = splitted_text.clone().choose(&mut rng).unwrap().to_string();
+    }
+    let copy_task_text = task_text.clone();
+    let container = document.create_element("div")?;
+    container.set_id("container");
+    let input = document.get_element_by_id("input").unwrap();
     let cb = Closure::wrap(Box::new(move |e: Event| {
         let input = e
             .current_target()
@@ -115,7 +170,7 @@ pub async fn main() -> Result<(), JsValue> {
             .dyn_into::<web_sys::HtmlTextAreaElement>()
             .unwrap();
         let text_value = &input.value();
-        process_text(&text_value, &copy_task_text);
+        process_text(&text_value, &task_text);
     }) as Box<dyn FnMut(_)>);
     input.add_event_listener_with_callback("input", &cb.as_ref().unchecked_ref())?;
     cb.forget();
@@ -126,12 +181,20 @@ pub async fn main() -> Result<(), JsValue> {
     .expect("#full-value should exist")
     .dyn_into::<web_sys::HtmlElement>()
     .expect("#full-value should be a HtmlElement")
-    .set_inner_html(&task_text);
+    .set_inner_html(&copy_task_text);
 
     Ok(())
 }
 
-fn process_text(entered_text: &str, task_text: &str) {
+// #[wasm_bindgen]
+// pub fn set_dict(dict: String) -> String {
+//     console_log!("rrrr");
+//     let dict = "dictionary/rlnc_top100.txt";
+//     dict.to_string()
+// }
+
+
+fn process_text(entered_text: &str, task_text: &str)  -> Result<(), JsValue> {
     let entered_text_len = entered_text.chars().count();
     let task_text_len = task_text.chars().count();
     let task_to_check_string: String = task_text.chars().skip(0).take(entered_text_len).collect::<String>();
@@ -151,7 +214,7 @@ fn process_text(entered_text: &str, task_text: &str) {
     let mut bad_value: String = String::from("");
     let mut remaining: String;
     let mut good_value_len = 0;
-    let mut bad_value_len = 0;
+    let mut bad_value_len;
     // let mut remaining_string: String;
     if entered_text == "" {
         bad_value = String::from("");
@@ -183,7 +246,7 @@ fn process_text(entered_text: &str, task_text: &str) {
         .expect("#task-text should exist")
         .dyn_into::<web_sys::HtmlElement>()
         .expect("#task-text should be a HtmlElement")
-        .style().set_property("background-color", "white");
+        .style().set_property("background-color", "white")?;
     }
 
     for (index, char) in entered_text.chars().enumerate() {
@@ -196,7 +259,7 @@ fn process_text(entered_text: &str, task_text: &str) {
             .expect("#task-text should exist")
             .dyn_into::<web_sys::HtmlElement>()
             .expect("#task-text should be a HtmlElement")
-            .style().set_property("background-color", "white");
+            .style().set_property("background-color", "white")?;
         }
         else {
             bad_value.push(char);
@@ -207,7 +270,7 @@ fn process_text(entered_text: &str, task_text: &str) {
             .expect("#task-text should exist")
             .dyn_into::<web_sys::HtmlElement>()
             .expect("#task-text should be a HtmlElement")
-            .style().set_property("background-color", "yellow");
+            .style().set_property("background-color", "yellow")?;
         }
 
         document
@@ -231,4 +294,25 @@ fn process_text(entered_text: &str, task_text: &str) {
         .expect("#task-text should be a HtmlElement")
         .set_inner_html(&remaining);
     }
+    // document
+    // .get_element_by_id("good-value")
+    // .expect("#task-text should exist")
+    // .dyn_into::<web_sys::HtmlElement>()
+    // .expect("#task-text should be a HtmlElement")
+    // .set_inner_html(&good_value);
+
+    // document
+    // .get_element_by_id("bad-value")
+    // .expect("#task-text should exist")
+    // .dyn_into::<web_sys::HtmlElement>()
+    // .expect("#task-text should be a HtmlElement")
+    // .set_inner_html(&bad_value);
+
+    // document
+    // .get_element_by_id("full-value")
+    // .expect("#task-text should exist")
+    // .dyn_into::<web_sys::HtmlElement>()
+    // .expect("#task-text should be a HtmlElement")
+    // .set_inner_html(&remaining);
+    Ok(())
 }

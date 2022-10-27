@@ -1,86 +1,304 @@
 <html>
-  <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-    <style>
-      body {
-        background-color: #212121;
-        font-size: 26px;
-        font-family: Helvetica,Arial;
-      }
-      #container {
-        padding-left: 25%;
-        padding-top: 3rem;
-        width: 50%;
-      }
-      #task-text {
-        color: #bbbeb6;
-      }
-      #input {
-        font-size: inherit;
-        font-family: inherit;
-        width: 100%;
-      }
-      #full-value {
-        color: #bbbeb6;
-      }
-      #good-value {
-        color: #6e9237;
-      }
-      #bad-value {
-        background-color: #cf2961;
-        color: #000;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Note the usage of `type=module` here as this is an ES6 module -->
-    <script type="module">
-      // Use ES module import syntax to import functionality from the module
-      // that we have compiled.
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      background-color: #212121;
+      font-size: 26px;
+      font-family: Helvetica, Arial;
+    }
+
+    #container {
+      padding-left: 25%;
+      padding-top: 3rem;
+      width: 50%;
+    }
+
+    #menu {
+      padding-left: 25%;
+      padding-top: 3rem;
+      width: 50%;
+      color: #98c359;
+    }
+
+    #task-text {
+      color: #bbbeb6;
+    }
+
+    #input {
+      font-size: inherit;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    #full-value {
+      color: #bbbeb6;
+    }
+
+    #good-value {
+      color: #6e9237;
+    }
+
+    #bad-value {
+      background-color: #cf2961;
+      color: #000;
+    }
+
+    .menu-lvl-2 {
+      padding-left: 1rem;
+    }
+
+    .menu-lvl-3 {
+      padding-left: 1rem;
+    }
+
+    .menu-lvl-4 {
+      padding-left: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Note the usage of `type=module` here as this is an ES6 module -->
+  <script type="module">
+    // Use ES module import syntax to import functionality from the module
+    // that we have compiled.
+    //
+    // Note that the `default` import is an initialization function which
+    // will "boot" the module and make it ready to use. Currently browsers
+    // don't support natively imported WebAssembly as an ES module, but
+    // eventually the manual initialization won't be required!
+    import init, { set_dict } from './pkg/without_a_bundler.js';
+    // const set_mode = mode => {
+    //     set_dict(mode)
+    //   }
+
+    async function run() {
+      document.getElementById("ru")
+
+
+      // First up we need to actually load the wasm file, so we use the
+      // default export to inform it where the wasm file is located on the
+      // server, and then we wait on the returned promise to wait for the
+      // wasm to be loaded.
       //
-      // Note that the `default` import is an initialization function which
-      // will "boot" the module and make it ready to use. Currently browsers
-      // don't support natively imported WebAssembly as an ES module, but
-      // eventually the manual initialization won't be required!
-      import init from './pkg/without_a_bundler.js';
+      // It may look like this: `await init('./pkg/without_a_bundler_bg.wasm');`,
+      // but there is also a handy default inside `init` function, which uses
+      // `import.meta` to locate the wasm file relatively to js file.
+      //
+      // Note that instead of a string you can also pass in any of the
+      // following things:
+      //
+      // * `WebAssembly.Module`
+      //
+      // * `ArrayBuffer`
+      //
+      // * `Response`
+      //
+      // * `Promise` which returns any of the above, e.g. `fetch("./path/to/wasm")`
+      //
+      // This gives you complete control over how the module is loaded
+      // and compiled.
+      //
+      // Also note that the promise, when resolved, yields the wasm module's
+      // exports which is the same as importing the `*_bg` module in other
+      // modes
+      await init();
+      document.getElementById("rui_top100").addEventListener("click", () => handleSelect('rui_top100', 'words'))
+      document.getElementById("rui_top200").addEventListener("click", () => handleSelect('rui_top200', 'words'))
+      document.getElementById("rui_top500").addEventListener("click", () => handleSelect('rui_top500', 'words'))
+      document.getElementById("rui_top1000").addEventListener("click", () => handleSelect('rui_top1000', 'words'))
+      document.getElementById("rui_top2000").addEventListener("click", () => handleSelect('rui_top2000', 'words'))
+      document.getElementById("rui_top5000").addEventListener("click", () => handleSelect('rui_top5000', 'words'))
+      document.getElementById("rlnc_top100").addEventListener("click", () => handleSelect('rlnc_top100', 'words'))
+      document.getElementById("rlnc_top200").addEventListener("click", () => handleSelect('rlnc_top200', 'words'))
+      document.getElementById("rlnc_top500").addEventListener("click", () => handleSelect('rlnc_top500', 'words'))
+      document.getElementById("rlnc_top1000").addEventListener("click", () => handleSelect('rlnc_top1000', 'words'))
+      document.getElementById("rlnc_top2000").addEventListener("click", () => handleSelect('rlnc_top2000', 'words'))
+      document.getElementById("rlnc_top5000").addEventListener("click", () => handleSelect('rlnc_top5000', 'words'))
+      document.getElementById("rlnc_top10000").addEventListener("click", () => handleSelect('rlnc_top10000', 'words'))
+      document.getElementById("contemp_fiction_top100").addEventListener("click", () => handleSelect('contemp_fiction_top100', 'words'))
+      document.getElementById("contemp_fiction_top200").addEventListener("click", () => handleSelect('contemp_fiction_top200', 'words'))
+      document.getElementById("contemp_fiction_top300").addEventListener("click", () => handleSelect('contemp_fiction_top300', 'words'))
+      document.getElementById("contemp_fiction_top500").addEventListener("click", () => handleSelect('contemp_fiction_top500', 'words'))
+      document.getElementById("contemp_fiction_top1000").addEventListener("click", () => handleSelect('contemp_fiction_top1000', 'words'))
+      document.getElementById("contemp_fiction_top2000").addEventListener("click", () => handleSelect('contemp_fiction_top2000', 'words'))
+      document.getElementById("project_gutenberg_top100").addEventListener("click", () => handleSelect('project_gutenberg_top100', 'words'))
+      document.getElementById("project_gutenberg_top1000").addEventListener("click", () => handleSelect('project_gutenberg_top1000', 'words'))
+      document.getElementById("project_gutenberg_top2000").addEventListener("click", () => handleSelect('project_gutenberg_top2000', 'words'))
+      document.getElementById("project_gutenberg_top5000").addEventListener("click", () => handleSelect('project_gutenberg_top5000', 'words'))
+      document.getElementById("project_gutenberg_top10000").addEventListener("click", () => handleSelect('project_gutenberg_top10000', 'words'))
 
-      async function run() {
-        // First up we need to actually load the wasm file, so we use the
-        // default export to inform it where the wasm file is located on the
-        // server, and then we wait on the returned promise to wait for the
-        // wasm to be loaded.
-        //
-        // It may look like this: `await init('./pkg/without_a_bundler_bg.wasm');`,
-        // but there is also a handy default inside `init` function, which uses
-        // `import.meta` to locate the wasm file relatively to js file.
-        //
-        // Note that instead of a string you can also pass in any of the
-        // following things:
-        //
-        // * `WebAssembly.Module`
-        //
-        // * `ArrayBuffer`
-        //
-        // * `Response`
-        //
-        // * `Promise` which returns any of the above, e.g. `fetch("./path/to/wasm")`
-        //
-        // This gives you complete control over how the module is loaded
-        // and compiled.
-        //
-        // Also note that the promise, when resolved, yields the wasm module's
-        // exports which is the same as importing the `*_bg` module in other
-        // modes
-        await init();
+      document.getElementById("text_rus_high_brutto").addEventListener("click", () => handleSelect('text_rus_high_brutto', 'text'))
+      document.getElementById("text_rus_adv_record").addEventListener("click", () => handleSelect('text_rus_adv_record', 'text'))
+      document.getElementById("text_rus_bombotext").addEventListener("click", () => handleSelect('text_rus_bombotext', 'text'))
+      document.getElementById("text_rus_cybertext").addEventListener("click", () => handleSelect('text_rus_cybertext', 'text'))
+      document.getElementById("rus_begin_littlefinger").addEventListener("click", () => handleSelect('rus_begin_littlefinger', 'words'))
+      document.getElementById("rus_begin_sync").addEventListener("click", () => handleSelect('rus_begin_sync', 'words'))
+      document.getElementById("text_eng_adv_kg").addEventListener("click", () => handleSelect('text_eng_adv_kg', 'text'))
+      document.getElementById("text_eng_short_kg").addEventListener("click", () => handleSelect('text_eng_short_kg', 'text'))
 
-        // And afterwards we can use all the functionality defined in wasm.
-        // const result = add(1, 2);
-        // console.log(`1 + 2 = ${result}`);
-        // if (result !== 3)
-        //   throw new Error("wasm addition doesn't work!");
+      
+      // document.getElementById("en").addEventListener("click", () => set_dict('en'))
+      // document.getElementByClassName("mode").addEventListener("click", () => set_dict(data.dict))
+      // document.getElementByid("ruitop100").addEventListener("click", () => set_dict(data.dict))
+
+
+      const handleSelect = (mode, type) => {
+        set_dict(mode, type);
+        document.getElementById("menu").removeAttribute("open");
+        document.getElementById("input").value = ""
       }
 
-      run();
-    </script>
-  </body>
+
+      // And afterwards we can use all the functionality defined in wasm.
+      // const result = add(1, 2);
+      // console.log(`1 + 2 = ${result}`);
+      // if (result !== 3)
+      //   throw new Error("wasm addition doesn't work!");
+    }
+
+    run();
+  </script>
+  <details id="menu">
+    <summary>
+      выберите режим
+    </summary>
+    <details class="menu-lvl-2">
+      <summary>
+        списки частотности
+      </summary>
+      <details class="menu-lvl-3">
+        <summary>
+          Русский интернет корпус
+        </summary>
+        <div class="menu-lvl-4">
+          <div id="rui_top100">
+            РИК ТОП 100
+          </div>
+          <div id="rui_top200">
+            РИК ТОП 200
+          </div>
+          <div id="rui_top500">
+            РИК ТОП 500
+          </div>
+          <div id="rui_top1000">
+            РИК ТОП 1000
+          </div>
+          <div id="rui_top2000">
+            РИК ТОП 2000
+          </div>
+          <div id="rui_top5000">
+            РИК ТОП 5000
+          </div>
+        </div>
+      </details>
+      <details class="menu-lvl-3">
+        <summary>
+          Национальный корпус русского языка
+        </summary>
+        <div class="menu-lvl-4">
+          <div id="rlnc_top100">
+            НКРЯ ТОП 100
+          </div>
+          <div id="rlnc_top200">
+            НКРЯ ТОП 200
+          </div>
+          <div id="rlnc_top500">
+            НКРЯ ТОП 500
+          </div>
+          <div id="rlnc_top1000">
+            НКРЯ ТОП 1000
+          </div>
+          <div id="rlnc_top2000">
+            НКРЯ ТОП 2000
+          </div>
+          <div id="rlnc_top5000">
+            НКРЯ ТОП 5000
+          </div>
+          <div id="rlnc_top10000">
+            НКРЯ ТОП 10000
+          </div>
+        </div>
+      </details>
+      <details class="menu-lvl-3">
+        <summary>
+          Contemporary fiction
+        </summary>
+        <div class="menu-lvl-4">
+          <div id="contemp_fiction_top100">
+            CF top 100
+          </div>
+          <div id="contemp_fiction_top200">
+            CF top 200
+          </div>
+          <div id="contemp_fiction_top300">
+            CF top 300
+          </div>
+          <div id="contemp_fiction_top500">
+            CF top 500
+          </div>
+          <div id="contemp_fiction_top1000">
+            CF top 1000
+          </div>
+          <div id="contemp_fiction_top2000">
+            CF top 2000
+          </div>
+        </div>
+      </details>
+      <details class="menu-lvl-3">
+        <summary>
+          Project Gutenberg
+        </summary>
+        <div class="menu-lvl-4">
+          <div id="project_gutenberg_top100">
+            PG top 100
+          </div>
+          <div id="project_gutenberg_top1000">
+            PG top 1000
+          </div>
+          <div id="project_gutenberg_top2000">
+            PG top 2000
+          </div>
+          <div id="project_gutenberg_top5000">
+            PG top 5000
+          </div>
+          <div id="project_gutenberg_top10000">
+            PG top 10000
+          </div>
+        </div>
+      </details>
+    </details>
+    <details class="menu-lvl-2">
+      <summary>
+        клавогонки
+      </summary>
+      <div class="menu-lvl-3">
+        <div id="text_rus_high_brutto">
+          тексты с высоким брутто
+        </div>
+        <div id="text_rus_adv_record">
+          обычный рекордный
+        </div>
+        <div id="text_rus_bombotext">
+          бомботексты
+        </div>
+        <div id="text_rus_cybertext">
+          кибертекст
+        </div>
+        <div id="rus_begin_littlefinger">
+          русский мизинцы
+        </div>
+        <div id="rus_begin_sync">
+          русский синхронизация
+        </div>
+        <div id="text_eng_adv_kg">
+          обычный английский
+        </div>
+        <div id="text_eng_short_kg">
+          короткий английский
+        </div>
+      </div>
+    </details>
+  </details>
+</body>
 </html>
