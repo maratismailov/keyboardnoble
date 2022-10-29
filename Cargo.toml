@@ -3,6 +3,8 @@ name = "without-a-bundler"
 version = "0.1.0"
 authors = ["The wasm-bindgen Developers"]
 edition = "2018"
+
+[package.metadata.wasm-pack.profile.release]
 wasm-opt = false
 
 [lib]
