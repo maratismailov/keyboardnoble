@@ -66,12 +66,6 @@ pub async fn main() -> Result<(), JsValue> {
     task_text.append_child(&bad_value)?;
     task_text.append_child(&full_value)?;
 
-    set_dict("rui_top100", "words");
- 
-
-
- 
-
     Ok(())
 }
 
@@ -80,18 +74,10 @@ pub async fn main() -> Result<(), JsValue> {
 #[wasm_bindgen]
 pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
     let mut pre_url = "dictionary/".to_owned();
-    // url.push(dict);
     pre_url = format!("{}{}.txt", pre_url, dict).to_string();
     let url = &pre_url;
 
 
-    // match dict {
-    //     "ruitop100" => { url = "dictionary/rui_top100.txt" }
-    //     "cftop100" => { url = "dictionary/contemp_fiction_top100.txt" }
-    //     _ => { url = "dictionary/rui_top100.txt" }
-    // }
-
-    console_log!("mode is {}", mode);
     let mut rng = rand::thread_rng();
 
     let window = web_sys::window().expect("no global `window` exists");
