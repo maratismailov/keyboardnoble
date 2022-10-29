@@ -10,7 +10,7 @@
 
     #container {
       padding-left: 25%;
-      padding-top: 3rem;
+      padding-top: 5rem;
       width: 50%;
     }
 
@@ -19,6 +19,10 @@
       padding-top: 3rem;
       width: 50%;
       color: #98c359;
+      font-size: 1.2rem;
+      position: absolute;
+      z-index: 9999;
+      background-color: #212121;
     }
 
     #task-text {
@@ -103,52 +107,54 @@
       // exports which is the same as importing the `*_bg` module in other
       // modes
       await init();
-      document.getElementById("rui_top100").addEventListener("click", () => handleSelect('rui_top100', 'words'))
-      document.getElementById("rui_top200").addEventListener("click", () => handleSelect('rui_top200', 'words'))
-      document.getElementById("rui_top500").addEventListener("click", () => handleSelect('rui_top500', 'words'))
-      document.getElementById("rui_top1000").addEventListener("click", () => handleSelect('rui_top1000', 'words'))
-      document.getElementById("rui_top2000").addEventListener("click", () => handleSelect('rui_top2000', 'words'))
-      document.getElementById("rui_top5000").addEventListener("click", () => handleSelect('rui_top5000', 'words'))
-      document.getElementById("rlnc_top100").addEventListener("click", () => handleSelect('rlnc_top100', 'words'))
-      document.getElementById("rlnc_top200").addEventListener("click", () => handleSelect('rlnc_top200', 'words'))
-      document.getElementById("rlnc_top500").addEventListener("click", () => handleSelect('rlnc_top500', 'words'))
-      document.getElementById("rlnc_top1000").addEventListener("click", () => handleSelect('rlnc_top1000', 'words'))
-      document.getElementById("rlnc_top2000").addEventListener("click", () => handleSelect('rlnc_top2000', 'words'))
-      document.getElementById("rlnc_top5000").addEventListener("click", () => handleSelect('rlnc_top5000', 'words'))
-      document.getElementById("rlnc_top10000").addEventListener("click", () => handleSelect('rlnc_top10000', 'words'))
-      document.getElementById("contemp_fiction_top100").addEventListener("click", () => handleSelect('contemp_fiction_top100', 'words'))
-      document.getElementById("contemp_fiction_top200").addEventListener("click", () => handleSelect('contemp_fiction_top200', 'words'))
-      document.getElementById("contemp_fiction_top300").addEventListener("click", () => handleSelect('contemp_fiction_top300', 'words'))
-      document.getElementById("contemp_fiction_top500").addEventListener("click", () => handleSelect('contemp_fiction_top500', 'words'))
-      document.getElementById("contemp_fiction_top1000").addEventListener("click", () => handleSelect('contemp_fiction_top1000', 'words'))
-      document.getElementById("contemp_fiction_top2000").addEventListener("click", () => handleSelect('contemp_fiction_top2000', 'words'))
-      document.getElementById("project_gutenberg_top100").addEventListener("click", () => handleSelect('project_gutenberg_top100', 'words'))
-      document.getElementById("project_gutenberg_top1000").addEventListener("click", () => handleSelect('project_gutenberg_top1000', 'words'))
-      document.getElementById("project_gutenberg_top2000").addEventListener("click", () => handleSelect('project_gutenberg_top2000', 'words'))
-      document.getElementById("project_gutenberg_top5000").addEventListener("click", () => handleSelect('project_gutenberg_top5000', 'words'))
-      document.getElementById("project_gutenberg_top10000").addEventListener("click", () => handleSelect('project_gutenberg_top10000', 'words'))
+      document.getElementById("rui_top100").addEventListener("click", (e) => handleSelect('rui_top100', 'words', e.target))
+      document.getElementById("rui_top200").addEventListener("click", (e) => handleSelect('rui_top200', 'words', e.target))
+      document.getElementById("rui_top500").addEventListener("click", (e) => handleSelect('rui_top500', 'words', e.target))
+      document.getElementById("rui_top1000").addEventListener("click", (e) => handleSelect('rui_top1000', 'words', e.target))
+      document.getElementById("rui_top2000").addEventListener("click", (e) => handleSelect('rui_top2000', 'words', e.target))
+      document.getElementById("rui_top5000").addEventListener("click", (e) => handleSelect('rui_top5000', 'words', e.target))
+      document.getElementById("rlnc_top100").addEventListener("click", (e) => handleSelect('rlnc_top100', 'words', e.target))
+      document.getElementById("rlnc_top200").addEventListener("click", (e) => handleSelect('rlnc_top200', 'words', e.target))
+      document.getElementById("rlnc_top500").addEventListener("click", (e) => handleSelect('rlnc_top500', 'words', e.target))
+      document.getElementById("rlnc_top1000").addEventListener("click", (e) => handleSelect('rlnc_top1000', 'words', e.target))
+      document.getElementById("rlnc_top2000").addEventListener("click", (e) => handleSelect('rlnc_top2000', 'words', e.target))
+      document.getElementById("rlnc_top5000").addEventListener("click", (e) => handleSelect('rlnc_top5000', 'words', e.target))
+      document.getElementById("rlnc_top10000").addEventListener("click", (e) => handleSelect('rlnc_top10000', 'words', e.target))
+      document.getElementById("contemp_fiction_top100").addEventListener("click", (e) => handleSelect('contemp_fiction_top100', 'words', e.target))
+      document.getElementById("contemp_fiction_top200").addEventListener("click", (e) => handleSelect('contemp_fiction_top200', 'words', e.target))
+      document.getElementById("contemp_fiction_top300").addEventListener("click", (e) => handleSelect('contemp_fiction_top300', 'words', e.target))
+      document.getElementById("contemp_fiction_top500").addEventListener("click", (e) => handleSelect('contemp_fiction_top500', 'words', e.target))
+      document.getElementById("contemp_fiction_top1000").addEventListener("click", (e) => handleSelect('contemp_fiction_top1000', 'words', e.target))
+      document.getElementById("contemp_fiction_top2000").addEventListener("click", (e) => handleSelect('contemp_fiction_top2000', 'words', e.target))
+      document.getElementById("project_gutenberg_top100").addEventListener("click", (e) => handleSelect('project_gutenberg_top100', 'words', e.target))
+      document.getElementById("project_gutenberg_top1000").addEventListener("click", (e) => handleSelect('project_gutenberg_top1000', 'words', e.target))
+      document.getElementById("project_gutenberg_top2000").addEventListener("click", (e) => handleSelect('project_gutenberg_top2000', 'words', e.target))
+      document.getElementById("project_gutenberg_top5000").addEventListener("click", (e) => handleSelect('project_gutenberg_top5000', 'words', e.target))
+      document.getElementById("project_gutenberg_top10000").addEventListener("click", (e) => handleSelect('project_gutenberg_top10000', 'words', e.target))
 
-      document.getElementById("text_rus_high_brutto").addEventListener("click", () => handleSelect('text_rus_high_brutto', 'text'))
-      document.getElementById("text_rus_adv_record").addEventListener("click", () => handleSelect('text_rus_adv_record', 'text'))
-      document.getElementById("text_rus_bombotext").addEventListener("click", () => handleSelect('text_rus_bombotext', 'text'))
-      document.getElementById("text_rus_cybertext").addEventListener("click", () => handleSelect('text_rus_cybertext', 'text'))
-      document.getElementById("rus_begin_littlefinger").addEventListener("click", () => handleSelect('rus_begin_littlefinger', 'words'))
-      document.getElementById("rus_begin_sync").addEventListener("click", () => handleSelect('rus_begin_sync', 'words'))
-      document.getElementById("text_eng_adv_kg").addEventListener("click", () => handleSelect('text_eng_adv_kg', 'text'))
-      document.getElementById("text_eng_short_kg").addEventListener("click", () => handleSelect('text_eng_short_kg', 'text'))
+      document.getElementById("text_rus_high_brutto").addEventListener("click", (e) => handleSelect('text_rus_high_brutto', 'text', e.target))
+      document.getElementById("text_rus_adv_record").addEventListener("click", (e) => handleSelect('text_rus_adv_record', 'text', e.target))
+      document.getElementById("text_rus_bombotext").addEventListener("click", (e) => handleSelect('text_rus_bombotext', 'text', e.target))
+      document.getElementById("text_rus_cybertext").addEventListener("click", (e) => handleSelect('text_rus_cybertext', 'text', e.target))
+      document.getElementById("rus_begin_littlefinger").addEventListener("click", (e) => handleSelect('rus_begin_littlefinger', 'words', e.target))
+      document.getElementById("rus_begin_sync").addEventListener("click", (e) => handleSelect('rus_begin_sync', 'words', e.target))
+      document.getElementById("text_eng_adv_kg").addEventListener("click", (e) => handleSelect('text_eng_adv_kg', 'text', e.target))
+      document.getElementById("text_eng_short_kg").addEventListener("click", (e) => handleSelect('text_eng_short_kg', 'text', e.target))
 
       
-      // document.getElementById("en").addEventListener("click", () => set_dict('en'))
-      // document.getElementByClassName("mode").addEventListener("click", () => set_dict(data.dict))
-      // document.getElementByid("ruitop100").addEventListener("click", () => set_dict(data.dict))
+      // document.getElementById("en").addEventListener("click", (e) => set_dict('en'))
+      // document.getElementByClassName("mode").addEventListener("click", (e) => set_dict(data.dict))
+      // document.getElementByid("ruitop100").addEventListener("click", (e) => set_dict(data.dict))
 
 
-      const handleSelect = (mode, type) => {
+      const handleSelect = (mode, type, target) => {
         set_dict(mode, type);
         document.getElementById("menu").removeAttribute("open");
         document.getElementById("input").value = ""
+        document.getElementById("current-mode").innerHTML = '---->' + target.textContent
       }
       set_dict("rui_top100", 'words');
+      document.getElementById("current-mode").innerHTML = '----> ' + 'РИК ТОП 100'
 
 
 
@@ -164,6 +170,7 @@
   <details id="menu">
     <summary>
       выберите режим
+      <span id="current-mode"></span>
     </summary>
     <details class="menu-lvl-2">
       <summary>
