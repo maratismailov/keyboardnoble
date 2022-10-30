@@ -48,6 +48,10 @@
       color: #000;
     }
 
+    #hidden {
+      display: none;
+    }
+
     .menu-lvl-2 {
       padding-left: 1rem;
     }
@@ -146,15 +150,27 @@
       // document.getElementByClassName("mode").addEventListener("click", (e) => set_dict(data.dict))
       // document.getElementByid("ruitop100").addEventListener("click", (e) => set_dict(data.dict))
 
-
+      let global_mode = "rui_top100";
+      let global_type = "words";
       const handleSelect = (mode, type, target) => {
         set_dict(mode, type);
+        global_mode = mode;
+        global_type = type;
         document.getElementById("menu").removeAttribute("open");
         document.getElementById("input").value = ""
         document.getElementById("current-mode").innerHTML = '---->' + target.textContent
       }
       set_dict("rui_top100", 'words');
       document.getElementById("current-mode").innerHTML = '----> ' + 'РИК ТОП 100'
+      document.getElementById("input").addEventListener("input", e => handleInput(e.target.value))
+
+      const handleInput = value => {
+        const isComplete = document.getElementById("hidden").innerText
+        if (isComplete == 'complete') {
+          set_dict(global_mode, global_type);
+          document.getElementById("input").value = ""
+        }
+      }
 
 
 

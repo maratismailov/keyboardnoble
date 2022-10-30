@@ -56,6 +56,9 @@ pub async fn main() -> Result<(), JsValue> {
     let entered_value = document.create_element("p")?;
     entered_value.set_id("entered-value");
 
+    let hidden = document.create_element("p")?;
+    hidden.set_id("hidden");
+
     body.append_child(&container)?;
     container.append_child(&task_text)?;
     container.append_child(&input)?;
@@ -66,6 +69,9 @@ pub async fn main() -> Result<(), JsValue> {
     task_text.append_child(&bad_value)?;
     task_text.append_child(&full_value)?;
 
+    container.append_child(&hidden)?;
+
+
     Ok(())
 }
 
@@ -74,7 +80,11 @@ pub async fn main() -> Result<(), JsValue> {
 #[wasm_bindgen]
 pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
     let mut pre_url = "dictionary/".to_owned();
-    pre_url = format!("{}{}.txt", pre_url, dict).to_string();
+    let dict_copy_str = dict.to_owned();
+    let dict_copy = dict_copy_str.clone();
+    let mode_copy_str = mode.to_owned();
+    let mode_copy = mode_copy_str.clone();
+    pre_url = format!("{}{}.txt", pre_url, dict_copy).to_string();
     let url = &pre_url;
 
 
@@ -113,6 +123,14 @@ pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
     .expect("#task-text should be a HtmlElement")
     .style().set_property("background-color", "white")?;
 
+
+    document
+    .get_element_by_id("hidden")
+    .expect("#task-text should exist")
+    .dyn_into::<web_sys::HtmlElement>()
+    .expect("#task-text should be a HtmlElement")
+    .set_inner_html("");
+
     let mut opts = RequestInit::new();
     opts.method("GET");
     opts.mode(RequestMode::Cors);
@@ -131,7 +149,7 @@ pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
     let mut task_text = String::new();
     let text = &jstext.as_string().unwrap();
 
-    if mode == "words" {
+    if mode_copy == "words" {
         let splitted_text = text.lines();
         for n in 0..15 {
             task_text.push_str(&splitted_text.clone().choose(&mut rng).unwrap());
@@ -156,7 +174,7 @@ pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
             .dyn_into::<web_sys::HtmlTextAreaElement>()
             .unwrap();
         let text_value = &input.value();
-        process_text(&text_value, &task_text);
+        process_text(&text_value, &task_text, &dict_copy, &mode_copy);
     }) as Box<dyn FnMut(_)>);
     input.add_event_listener_with_callback("input", &cb.as_ref().unchecked_ref())?;
     cb.forget();
@@ -180,7 +198,7 @@ pub async fn set_dict(dict: &str, mode: &str) -> Result<(), JsValue> {
 // }
 
 
-fn process_text(entered_text: &str, task_text: &str)  -> Result<(), JsValue> {
+fn process_text(entered_text: &str, task_text: &str,  dict: &str, mode: &str)  -> Result<(), JsValue> {
     let entered_text_len = entered_text.chars().count();
     let task_text_len = task_text.chars().count();
     let task_to_check_string: String = task_text.chars().skip(0).take(entered_text_len).collect::<String>();
@@ -234,8 +252,19 @@ fn process_text(entered_text: &str, task_text: &str)  -> Result<(), JsValue> {
         .expect("#task-text should be a HtmlElement")
         .style().set_property("background-color", "white")?;
     }
+        if entered_text == task_text { 
+            document
+            .get_element_by_id("hidden")
+            .expect("#task-text should exist")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("#task-text should be a HtmlElement")
+            .set_inner_html("complete");
+        }
 
     for (index, char) in entered_text.chars().enumerate() {
+        if index == task_text.chars().count() {
+            break
+        }
         if char == task_text.chars().nth(index).unwrap() && entered_text == task_to_check {
             good_value.push(char);
             good_value_len = good_value.chars().count();
